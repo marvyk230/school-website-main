@@ -1,0 +1,14 @@
+**/node_modules/
+**/.nuxt/
+**/.output/
+**/.data/
+**/dist/
+**/.env
+**/.env.*
+!**/.env.example
+**/.admin-credentials.txt
+**/*.db
+**/*.db-journal
+**/*.sqlite
+**/*.sqlite3
+.sanity/

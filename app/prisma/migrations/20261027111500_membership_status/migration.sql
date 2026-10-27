@@ -1,0 +1,1 @@
+ALTER TABLE "ClubMembership" ADD COLUMN "status" TEXT NOT NULL DEFAULT 'ACTIVE';
