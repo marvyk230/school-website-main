@@ -1,6 +1,6 @@
 import { prisma } from ".";
 import { User, ID } from "~/types/user";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 
 // create a new user
 export const createUser = async (userData: User) => {

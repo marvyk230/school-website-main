@@ -1,5 +1,5 @@
 import { randomBytes } from "node:crypto";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import { prisma } from "~/server/db";
 import { requireRole } from "~/server/utils/authorization";
 

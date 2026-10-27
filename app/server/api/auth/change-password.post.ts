@@ -1,4 +1,4 @@
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import { prisma } from "~/server/db";
 import { requireUser } from "~/server/utils/authorization";
 
