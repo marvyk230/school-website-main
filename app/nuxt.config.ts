@@ -9,8 +9,8 @@ export default defineNuxtConfig({
 	plugins: [{ src: "~/plugins/vercel.ts", mode: "client" }],
 	css: ["~/assets/global.scss"],
 	runtimeConfig: {
-		jwtAccessSecret: process.env.JWT_ACCESS_TOKEN_SECRET,
-		jwtRefreshSecret: process.env.JWT_REFRESH_TOKEN_SECRET,
+		jwtAccessSecret: process.env.NUXT_JWT_ACCESS_SECRET || process.env.JWT_ACCESS_TOKEN_SECRET,
+		jwtRefreshSecret: process.env.NUXT_JWT_REFRESH_SECRET || process.env.JWT_REFRESH_TOKEN_SECRET,
 	},
 	postcss: {
 		plugins: {

@@ -14,6 +14,10 @@ export default defineEventHandler(async (event) => {
 	if (!username || !password) {
 		throw createError({ statusCode: 400, statusMessage: "Vui lòng nhập tên đăng nhập và mật khẩu." });
 	}
+	const config = useRuntimeConfig(event);
+	if (!config.jwtAccessSecret || !config.jwtRefreshSecret) {
+		throw createError({ statusCode: 503, statusMessage: "Hệ thống đăng nhập chưa được cấu hình đầy đủ." });
+	}
 
 	const user = await getUserByUsername(username) as User | null;
 

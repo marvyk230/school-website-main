@@ -119,14 +119,20 @@ async function main() {
 		...(demoPassword ? [`Học sinh demo: ${demoStudent.username} / ${demoPassword}`] : []),
 	];
 	if (credentials.length) {
-		fs.writeFileSync(
-			path.join(__dirname, "..", ".admin-credentials.txt"),
-			`${credentials.join("\n")}\n`,
-			{ encoding: "utf8", mode: 0o600, flag: "wx" },
-		);
+		const credentialsPath = path.join(__dirname, "..", ".admin-credentials.txt");
+		try {
+			fs.writeFileSync(credentialsPath, `${credentials.join("\n")}\n`, {
+				encoding: "utf8",
+				mode: 0o600,
+				flag: "wx",
+			});
+			console.log(`Thông tin đăng nhập ban đầu được lưu trong ${credentialsPath}`);
+		} catch (error) {
+			if (error.code !== "EEXIST") throw error;
+			console.warn(`Không ghi đè ${credentialsPath}; hãy giữ lại hoặc xử lý file thông tin đăng nhập hiện có.`);
+		}
 	}
 	console.log(`Đã tạo ${clubs.length} câu lạc bộ, ${activities.length} hoạt động và tài khoản mẫu.`);
-	if (credentials.length) console.log(`Thông tin đăng nhập ban đầu được lưu trong ${path.join(__dirname, "..", ".admin-credentials.txt")}`);
 }
 
 main()

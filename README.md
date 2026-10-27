@@ -25,7 +25,40 @@ Mở `http://localhost:3000`. Dữ liệu mặc định được lưu bằng SQL
 
 GitHub lưu và chia sẻ mã nguồn, không tự chạy ứng dụng Nuxt có API. Khi chỉ chạy `pnpm dev` trên máy cá nhân, người khác không thể truy cập qua Internet và website ngừng hoạt động khi máy/server dừng.
 
-Để mọi người truy cập công khai, hãy đẩy mã nguồn lên repository GitHub rồi triển khai ứng dụng Nuxt lên hosting hỗ trợ Node.js. Ứng dụng dùng API và SQLite, vì vậy hosting phải có ổ đĩa bền vững để giữ database (ví dụ VPS hoặc dịch vụ hỗ trợ persistent disk); hosting web tĩnh/GitHub Pages không chạy được phần API và database này. Không đưa `.env`, mật khẩu admin hay database lên GitHub. Trước khi mở công khai, hãy đổi mật khẩu quản trị mặc định và đặt JWT secrets riêng trong cấu hình bảo mật của hosting.
+Để mọi người sử dụng API và dữ liệu ổn định trên Vercel, cần một PostgreSQL production. Project có schema/migration PostgreSQL riêng cho Neon; database SQLite local vẫn giữ nguyên.
+
+### Triển khai lên Vercel với Neon
+
+1. Tạo một project PostgreSQL miễn phí trên Neon. Trong Vercel, đặt **Root Directory** thành `app` và bật **Include files outside the Root Directory** nếu có.
+2. Trong Neon, lấy cả pooled connection string (host thường có `-pooler`) và direct connection string. Trong Vercel → **Settings → Environment Variables**, thêm các biến sau cho **Production** (và Preview nếu cần):
+   - `DATABASE_URL`: pooled Neon URL.
+   - `DIRECT_URL`: direct Neon URL.
+   - `NUXT_JWT_ACCESS_SECRET`: chuỗi ngẫu nhiên dài, riêng cho production.
+   - `NUXT_JWT_REFRESH_SECRET`: một chuỗi ngẫu nhiên khác.
+3. Build command của project `app/vercel.json` sẽ sinh Prisma Client từ schema PostgreSQL rồi build Nuxt. Redeploy sau khi lưu Environment Variables.
+4. Tạo hai connection string trong PowerShell từ prompt (không gửi chúng qua chat, không đưa vào Git):
+
+   ```powershell
+   $env:DATABASE_URL = Read-Host "Paste pooled Neon connection string"
+   $env:DIRECT_URL = Read-Host "Paste direct Neon connection string"
+   ```
+
+5. Từ thư mục `app`, áp dụng schema và tạo dữ liệu khởi đầu. Dùng mật khẩu admin mạnh, không dùng lại mật khẩu `123456`:
+
+   ```powershell
+   pnpm db:deploy:postgres
+   $env:ADMIN_USERNAME = "viendinhhao"
+   $env:ADMIN_EMAIL = "admin@example.com"
+   $env:ADMIN_PASSWORD = Read-Host "Enter a new strong admin password"
+   pnpm db:seed:postgres
+   ```
+
+   Lưu mật khẩu admin an toàn. Lệnh seed chỉ dùng cho database Neon mới/chưa có admin; không chạy lại để reset mật khẩu hiện có.
+6. Sau khi hoàn tất, kiểm tra `/api/clubs`, `/api/activities`, đăng ký học sinh và đăng nhập trên domain Vercel.
+
+Tất cả tài khoản, CLB, yêu cầu thành viên, thông báo, hoạt động và điểm danh sẽ dùng chung Neon database. SQLite local hiện tại không tự được sao chép lên Neon; seed tạo các CLB/hoạt động mẫu và tài khoản admin ban đầu. Chỉ chuyển thêm dữ liệu SQLite cũ nếu cần, bằng một quy trình migration riêng.
+
+Không đưa `.env`, mật khẩu admin, connection strings, JWT secrets hoặc database vào GitHub. GitHub Pages không chạy được API/backend này.
 
 Lệnh tạo dữ liệu mẫu tạo tài khoản quản trị và học sinh mẫu. Mật khẩu ban đầu được sinh ngẫu nhiên và ghi một lần vào `app/.admin-credentials.txt` (đã được Git ignore). Hãy đăng nhập bằng tài khoản quản trị rồi đổi mật khẩu khi triển khai cho người dùng thật. Học sinh mới có thể đăng ký tài khoản ngay trên website.
 
